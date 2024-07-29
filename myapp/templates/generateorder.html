@@ -1,0 +1,381 @@
+{% extends "basic.html" %}
+{% block content %}
+{% load static %}
+<section class="home px-5">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="text px-0">Generate Order</div>
+        <button id="submitOrder" class="btn btn-primary">Submit Order</button>
+    </div>
+    <div class="content">
+        <div class="text-start fw-semibold">
+            <div class="row">
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="InvoiceNo" class="form-label">Invoice No</label>
+                    <input type="text" class="form-control" name="InvoiceNo" id="InvoiceNo" readonly>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="InvoiceDate" class="form-label">Invoice Date</label>
+                    <input type="date" class="form-control" name="InvoiceDate" id="InvoiceDate" required>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="PoNo" class="form-label">PO No</label>
+                    <input type="text" class="form-control" name="PoNo" id="PoNo" placeholder="A0001-2024-2025">
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="PoDate" class="form-label">PO Date</label>
+                    <input type="date" class="form-control" name="PoDate" id="PoDate">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="CustomerName" class="form-label">Customer Name</label>
+                    <select name="CustomerName" id="CustomerName" class="form-select">
+                        <option selected disabled>Open this select menu</option>
+                        {% for cus in customer %}
+                            <option value="{{ cus.c_id }}">{{ cus.c_id }} - {{ cus.c_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="VehicleMode" class="form-label">Vehicle Mode</label>
+                    <input type="text" name="VehicleMode" id="VehicleMode" class="form-control" placeholder="Truck">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="VehicleNo" class="form-label">Vehicle No</label>
+                    <input type="text" name="VehicleNo" id="VehicleNo" class="form-control" placeholder="GJ-27-DB-5883">
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="DateOSupply" class="form-label">Date Of Supply</label>
+                    <input type="date" name="DateOSupply" id="DateOSupply" class="form-control">
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label for="State" class="form-label">State</label>
+                    <input type="text" name="State" id="State" class="form-control" placeholder="Gujarat">
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped" id="itemsTable">
+                <thead>
+                    <tr class="text-center">
+                        <th>Action</th>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>HSN/SAC</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <button class="btn btn-danger deleteBtn"><i class="fas fa-trash"></i></button>
+                        </td>
+                        <td>1</td>
+                        <td>
+                            <select name="product" class="form-select productDropdown">
+                                <option selected disabled>Select Product</option>
+                                {% for product in products %}
+                                    <option value="{{ product.p_id }}">{{ product.p_id }} - {{ product.p_name }}</option>
+                                {% endfor %}
+                                <option value="custom">Add Custom Product</option>
+                            </select>
+                            <div class="customProductField" style="display: none;">
+                                <label for="customProductName" class="form-label">Custom Product Name</label>
+                                <input type="text" class="form-control customProductName" name="customProductName">
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" name="HSNNo" class="form-control HSNNo">
+                        </td>
+                        <td>
+                            <input type="number" name="Qty" class="form-control qty" oninput="calculateRowAmount(this)">
+                        </td>
+                        <td>
+                            <input type="text" name="Unit" class="form-control Unit">
+                        </td>
+                        <td>
+                            <input type="number" name="Rate" class="form-control rate" oninput="calculateRowAmount(this)">
+                        </td>
+                        <td>
+                            <input type="number" name="Amount" class="form-control amount" readonly>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" rowspan="5" class="align-middle">
+                            <strong>Grand Total (in words):</strong>
+                            <textarea id="grandTotalWords" class="form-control" rows="3" disabled></textarea>
+                        </td>
+                        <td colspan="2" class="text-end"><strong>CGST:</strong></td>
+                        <td><input type="number" name="CGST" id="CGST" class="form-control text-end" readonly></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-end"><strong>SGST:</strong></td>
+                        <td><input type="number" name="SGST" id="SGST" class="form-control text-end" readonly></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-end"><strong>GST Total:</strong></td>
+                        <td><input type="number" name="GSTTotal" id="GSTTotal" class="form-control text-end" readonly></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-end"><strong>Total Amount:</strong></td>
+                        <td><input type="number" name="TotalAmount" id="TotalAmount" class="form-control text-end" readonly></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#InvoiceDate').change(function() {
+        var invoiceDate = $(this).val();
+        
+        $.ajax({
+            url: '{% url "generate_invoice_number" %}',
+            type: 'POST',
+            data: {
+                'invoice_date': invoiceDate,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                $('#InvoiceNo').val(response.invoice_number);
+            },
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseJSON.error);
+            }
+        });
+    });
+});
+$('#submitOrder').click(function() {
+    var orderData = {
+        'InvoiceNo': $('#InvoiceNo').val(),
+        'InvoiceDate': $('#InvoiceDate').val(),
+        'PoNo': $('#PoNo').val(),
+        'PoDate': $('#PoDate').val(),
+        'CustomerName': $('#CustomerName').val(),
+        'VehicleMode': $('#VehicleMode').val(),
+        'VehicleNo': $('#VehicleNo').val(),
+        'DateOSupply': $('#DateOSupply').val(),
+        'State': $('#State').val(),
+        'TotalAmount': $('#TotalAmount').val(),
+        'items': []
+    };
+    console.log('orderData', orderData);
+    $('#itemsTable tbody tr').each(function() {
+        var row = $(this);
+        var item = {
+            'product': row.find('.productDropdown').val(),
+            'HSNNo': row.find('.HSNNo').val(),
+            'Qty': row.find('.qty').val(),
+            'Unit': row.find('.Unit').val(),
+            'Rate': row.find('.rate').val(),
+            'Amount': row.find('.amount').val()
+        };
+        orderData.items.push(item);
+    });
+
+    $.ajax({
+        url: '{% url "add_salesorder" %}',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(orderData),
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            window.location.href = '{% url "salesorders" %}';
+        },
+        error: function(xhr) {
+            alert('Error: ' + xhr.responseJSON.error);
+        }
+    });
+});
+</script>
+<script>
+   
+
+    function convertToWords(num) {
+        if (num === 0) return "Zero only";
+    
+        var a = ['','one ','two ','three ','four ', 'five ','six ','seven ','eight ','nine ','ten ','eleven ','twelve ','thirteen ','fourteen ','fifteen ','sixteen ','seventeen ','eighteen ','nineteen '];
+        var b = ['', '', 'twenty','thirty','forty','fifty', 'sixty','seventy','eighty','ninety'];
+    
+        function inWords (num) {
+            if ((num = num.toString()).length > 9) return 'overflow';
+            n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return; 
+            var str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'rupees' : '';
+            return str;
+        }
+    
+        return inWords(num);
+    }
+</script>
+    
+
+    
+<script>
+     document.addEventListener('DOMContentLoaded', function() {
+        const initialRow = document.querySelector('#itemsTable tbody tr');
+        initialRow.style.display = 'table-row'; // Ensure the initial row is displayed
+
+        document.querySelectorAll('.productDropdown').forEach(dropdown => {
+            dropdown.addEventListener('change', function() {
+                handleProductChange(this);
+            });
+        });
+
+        document.querySelectorAll('.deleteBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                deleteRow(this);
+            });
+        });
+    });
+
+    function handleProductChange(selectElement) {
+        const customProductField = selectElement.closest('td').querySelector('.customProductField');
+        const customProductName = selectElement.closest('td').querySelector('.customProductName');
+        const HSNNo = selectElement.closest('tr').querySelector('.HSNNo');
+        const rate = selectElement.closest('tr').querySelector('.rate');
+        const unit = selectElement.closest('tr').querySelector('.Unit');
+
+        if (selectElement.value === 'custom') {
+            customProductField.style.display = 'block';
+            customProductName.required = true;
+        } else {
+            customProductField.style.display = 'none';
+            customProductName.required = false;
+
+            // Fetch product details via AJAX
+            fetch(`/get_product_details/${selectElement.value}/`)
+                .then(response => response.json())
+                .then(data => {
+                    HSNNo.value = data.hsn;
+                    rate.value = data.rate;
+                    unit.value = data.unit;
+                });
+        }
+
+        // Add a new row if the current row has values and is the last row
+        const currentRow = selectElement.closest('tr');
+        const isLastRow = currentRow.nextElementSibling === null;
+        const hasValues = Array.from(currentRow.querySelectorAll('input, select')).some(input => input.value.trim() !== "");
+
+        if (isLastRow && hasValues) {
+            addNewRow();
+        }
+    }
+
+    function calculateRowAmount(element) {
+        const row = element.closest('tr');
+        const qty = parseFloat(row.querySelector('.qty').value) || 0;
+        const rate = parseFloat(row.querySelector('.rate').value) || 0;
+        const amount = qty * rate;
+        row.querySelector('.amount').value = amount.toFixed(2);
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        let totalAmount = 0;
+        document.querySelectorAll('#itemsTable .amount').forEach(amountField => {
+            totalAmount += parseFloat(amountField.value) || 0;
+        });
+
+        const cgst = totalAmount * 0.09;
+        const sgst = totalAmount * 0.09;
+        const gstTotal = cgst + sgst;
+        const grandTotal = totalAmount + gstTotal;
+
+        document.getElementById('CGST').value = cgst.toFixed(2);
+        document.getElementById('SGST').value = sgst.toFixed(2);
+        document.getElementById('GSTTotal').value = gstTotal.toFixed(2);
+        document.getElementById('TotalAmount').value = grandTotal.toFixed(2);
+
+        document.getElementById('grandTotalWords').innerText = convertToWords(grandTotal) + " only";
+    }
+
+    function addNewRow() {
+        const tableBody = document.querySelector('#itemsTable tbody');
+        const newRow = document.createElement('tr');
+        const rowCount = tableBody.querySelectorAll('tr').length + 1;
+
+        newRow.innerHTML = `
+             <td>
+                {% comment %} <button class="btn btn-warning  editBtn"><i class="fas fa-edit"></i></button> {% endcomment %}
+                <button class="btn btn-danger  deleteBtn"><i class="fas fa-trash"></i></button>
+            </td>
+            <td>${rowCount}</td>
+            <td>
+                <select name="product" class="form-select productDropdown">
+                    <option selected disabled>Select Product</option>
+                    {% for product in products %}
+                        <option value="{{ product.p_id }}">{{ product.p_id }} - {{ product.p_name }}</option>
+                    {% endfor %}
+                    <option value="custom">Add Custom Product</option>
+                </select>
+                <div class="customProductField" style="display: none;">
+                    <label for="customProductName" class="form-label">Custom Product Name</label>
+                    <input type="text" class="form-control customProductName" name="customProductName">
+                </div>
+            </td>
+            <td>
+                <input type="text" name="HSNNo" class="form-control HSNNo">
+            </td>
+            <td>
+                <input type="number" name="Qty" class="form-control qty" oninput="calculateRowAmount(this)">
+            </td>
+            <td>
+                <input type="text" name="Unit" class="form-control Unit">
+            </td>
+            <td>
+                <input type="number" name="Rate" class="form-control rate" oninput="calculateRowAmount(this)">
+            </td>
+            <td>
+                <input type="number" name="Amount" class="form-control amount" readonly>
+            </td>
+        `;
+
+        tableBody.appendChild(newRow);
+
+        // Add event listeners to the new row's elements
+        newRow.querySelector('.productDropdown').addEventListener('change', function() {
+            handleProductChange(this);
+        });
+        newRow.querySelector('.deleteBtn').addEventListener('click', function() {
+            deleteRow(this);
+        });
+    }
+
+    function deleteRow(button) {
+        const row = button.closest('tr');
+        if (document.querySelectorAll('#itemsTable tbody tr').length > 1) {
+            row.remove();
+            calculateTotal();
+            updateRowNumbers();
+        } else {
+            alert("Cannot delete the only row.");
+        }
+    }
+
+    function updateRowNumbers() {
+        document.querySelectorAll('#itemsTable tbody tr').forEach((row, index) => {
+            row.querySelector('td:nth-child(2)').innerText = index + 1;
+        });
+    }
+</script>
+
+{% endblock %}

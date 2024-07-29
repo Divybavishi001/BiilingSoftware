@@ -1,0 +1,330 @@
+{% extends "basic.html" %}
+{% block content %}
+{% load static %}
+<section class="home px-5">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="text px-0">Customers</div>
+        <div class="gamee">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addnewmodel">Add New Customer</button>
+        </div>
+    </div>
+
+    <!-- Add New Modal -->
+    <div class="modal fade" id="addnewmodel" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Add New Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-form">
+                        <div class="mb-3">
+                            <label for="add-customer-name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="add-customer-name" name="c_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-trade-name" class="form-label">Trade Name</label>
+                            <input type="text" class="form-control" id="add-trade-name" name="c_tradename" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-customer-address" class="form-label">Address</label>
+                            <textarea class="form-control" id="add-customer-address" name="c_address" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-customer-mobile" class="form-label">Mobile</label>
+                            <input type="text" class="form-control" id="add-customer-mobile" name="c_mobile" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-customer-gstno" class="form-label">GST No</label>
+                            <input type="text" class="form-control" id="add-customer-gstno" name="c_gstno" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="add-customer-submit">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <th>#</th>
+                        <th>Customer Name</th>
+                        <th>Trade Name</th>
+                        <th>Address</th>
+                        <th>Mobile</th>
+                        <th>GST No</th>
+                        <th>Action</th>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td>{{ customer.c_id }}</td>
+                            <td>{{ customer.c_name }}</td>
+                            <td>{{ customer.c_tradename }}</td>
+                            <td>{{ customer.c_address }}</td>
+                            <td>{{ customer.c_mobile }}</td>
+                            <td>{{ customer.c_gstno }}</td>
+                            <td>
+                                <button class="btn btn-primary view-button" data-customer-id="{{ customer.c_id }}"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-warning edit-button" data-customer-id="{{ customer.c_id }}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger delete-button" data-customer-id="{{ customer.c_id }}"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <!-- View Modal -->
+            <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewModalLabel">Customer Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>ID:</strong> <span id="view-customer-id"></span></p>
+                            <p><strong>Name:</strong> <span id="view-customer-name"></span></p>
+                            <p><strong>Trade Name:</strong> <span id="view-trade-name"></span></p>
+                            <p><strong>Address:</strong> <span id="view-customer-address"></span></p>
+                            <p><strong>Mobile:</strong> <span id="view-customer-mobile"></span></p>
+                            <p><strong>GST No:</strong> <span id="view-customer-gstno"></span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Edit Customer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-form">
+                                <div class="mb-3">
+                                    <label for="edit-customer-id" class="form-label">ID</label>
+                                    <input type="text" class="form-control" id="edit-customer-id" name="c_id" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-customer-name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="edit-customer-name" name="c_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-trade-name" class="form-label">Trade Name</label>
+                                    <input type="text" class="form-control" id="edit-trade-name" name="c_tradename" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-customer-address" class="form-label">Address</label>
+                                    <textarea class="form-control" id="edit-customer-address" name="c_address" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-customer-mobile" class="form-label">Mobile</label>
+                                    <input type="text" class="form-control" id="edit-customer-mobile" name="c_mobile" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-customer-gstno" class="form-label">GST No</label>
+                                    <input type="text" class="form-control" id="edit-customer-gstno" name="c_gstno" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="save-changes">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var csrftoken = getCookie('csrftoken');
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // View Button Click Handler
+        var viewButtons = document.querySelectorAll('.view-button');
+        viewButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var c_id = this.getAttribute('data-customer-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/view_customer/');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.Status) {
+                            var customer = response.customer;
+                            document.getElementById('view-customer-id').textContent = customer.c_id;
+                            document.getElementById('view-customer-name').textContent = customer.c_name;
+                            document.getElementById('view-trade-name').textContent = customer.c_tradename;
+                            document.getElementById('view-customer-address').textContent = customer.c_address;
+                            document.getElementById('view-customer-mobile').textContent = customer.c_mobile;
+                            document.getElementById('view-customer-gstno').textContent = customer.c_gstno;
+                            var modal = new bootstrap.Modal(document.getElementById('viewModal'));
+                            modal.show();
+                        } else {
+                            alert('Customer not found!');
+                        }
+                    } else {
+                        alert('Error fetching customer details.');
+                    }
+                };
+                xhr.onerror = function () {
+                    alert('Request failed');
+                };
+                xhr.send(JSON.stringify({ c_id: c_id }));
+            });
+        });
+
+        // Edit Button Click Handler
+        var editButtons = document.querySelectorAll('.edit-button');
+        editButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var customerId = this.getAttribute('data-customer-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/view_customer/');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.Status) {
+                            var customer = response.customer;
+                            document.getElementById('edit-customer-id').value = customer.c_id;
+                            document.getElementById('edit-customer-name').value = customer.c_name;
+                            document.getElementById('edit-trade-name').value = customer.c_tradename;
+                            document.getElementById('edit-customer-address').value = customer.c_address;
+                            document.getElementById('edit-customer-mobile').value = customer.c_mobile;
+                            document.getElementById('edit-customer-gstno').value = customer.c_gstno;
+                            var modal = new bootstrap.Modal(document.getElementById('editModal'));
+                            modal.show();
+                        } else {
+                            alert('Customer not found!');
+                        }
+                    } else {
+                        alert('Error fetching customer details.');
+                    }
+                };
+                xhr.onerror = function () {
+                    alert('Request failed');
+                };
+                xhr.send(JSON.stringify({ c_id: customerId }));
+            });
+        });
+
+        // Save Changes Button Click Handler
+        document.getElementById('save-changes').addEventListener('click', function () {
+            var formData = new FormData(document.getElementById('edit-form'));
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/edit_customer/');
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.Status) {
+                        alert('Customer updated successfully.');
+                        location.reload(); // Refresh the page
+                    } else {
+                        alert('Failed to update customer.');
+                    }
+                } else {
+                    alert('Error updating customer.');
+                }
+            };
+            xhr.onerror = function () {
+                alert('Request failed');
+            };
+            xhr.send(new URLSearchParams(formData));
+        });
+
+        // Delete Button Click Handler
+        var deleteButtons = document.querySelectorAll('.delete-button');
+        deleteButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var c_id = this.getAttribute('data-customer-id');
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/delete_customer/');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.Status) {
+                            alert('Customer deleted successfully.');
+                            location.reload(); // Optionally reload the page to reflect changes
+                        } else {
+                            alert('Failed to delete customer.');
+                        }
+                    } else {
+                        alert('Error deleting customer.');
+                    }
+                };
+                xhr.onerror = function () {
+                    alert('Request failed');
+                };
+                xhr.send(JSON.stringify({ c_id: c_id }));
+            });
+        });
+
+        // Add New Customer Button Click Handler
+        document.getElementById('add-customer-submit').addEventListener('click', function () {
+            var formData = new FormData(document.getElementById('add-form'));
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/add_customer/');
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.Status) {
+                        alert('Customer added successfully.');
+                        location.reload(); // Refresh the page
+                    } else {
+                        alert('Failed to add customer.');
+                    }
+                } else {
+                    alert('Error adding customer.');
+                }
+            };
+            xhr.onerror = function () {
+                alert('Request failed');
+            };
+            xhr.send(new URLSearchParams(formData));
+        });
+    });
+</script>
+
+{% endblock %}
